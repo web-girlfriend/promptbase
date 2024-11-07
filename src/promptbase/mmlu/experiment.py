@@ -125,7 +125,7 @@ def solve(options, problem):
     model = options.get("model", "gpt-4-1106-preview")
     set_order(problem, options["order"])
 
-    for retry in range(options.get("max_retry", 3)):
+    for retry in range(options.get("max_retry", 10)):
         if "example_selector" not in options:
             selected_examples = []
         elif options["example_selector"] in ["random", "knn", "svm"]:
@@ -282,6 +282,14 @@ def solve(options, problem):
                     f.write(
                         f"########## Invalid Answer ##########\n{problem['correct_answer']} (GPT answer: {response['text']})\n"
                     )
+
+        elif "error" in response and "429" in response["error"]:
+            wait_time = 5 * (retry + 1)  # Exponential backoff
+            print(f"Rate limit hit. Retrying in {wait_time} seconds...")
+            time.sleep(wait_time)
+        else:
+            print("Unexpected error or response format:", response)
+            break  # Stop retrying if response is not successful and no retryable error
 
     if "expt" not in problem:
         problem["expt"] = {}
