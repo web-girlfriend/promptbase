@@ -149,7 +149,7 @@ def generate_solutions_without_rank(
     options["max_thread"] = 40
     options["num_repeat"] = 5
     options["model"] = model
-    options["max_retry"] = 2
+    options["max_retry"] = 11
     run_experiment(options)
 
 
